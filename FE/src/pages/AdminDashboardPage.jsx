@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import {
+    AddAdmins,
     BookUpdates,
     BorrowUpdates,
-    Notification,
+    // Notification,
 } from "../components/AdminComponents";
+import BorrowRecordsPage from "./BorrowRecordsPage";
+import NotifyBorrowers from "./NotifyBorrowers";
+import ReportsPage from "./ReportsPage";
 const AdminDashboard = () => {
     const [activeSection, setActiveSection] = useState("1");
 
@@ -34,7 +38,16 @@ const AdminDashboard = () => {
                                 Borrow Updates
                             </Nav.Link>
                             <Nav.Link onClick={() => setActiveSection("3")}>
-                                Notification
+                                Borrow Records
+                            </Nav.Link>
+                            <Nav.Link onClick={() => setActiveSection("4")}>
+                                Notify Borrowers
+                            </Nav.Link>
+                            <Nav.Link onClick={() => setActiveSection("5")}>
+                                Reports
+                            </Nav.Link>
+                            <Nav.Link onClick={() => setActiveSection("6")}>
+                                Add Admin
                             </Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
@@ -42,10 +55,13 @@ const AdminDashboard = () => {
             </Navbar>
 
             <section>
-                <div className=" mt-4">
+                <div className=" mt-3">
                     {activeSection === "1" && <BookUpdates />}
                     {activeSection === "2" && <BorrowUpdates />}
-                    {activeSection === "3" && <Notification />}
+                    {activeSection === "3" && <BorrowRecordsPage />}
+                    {activeSection === "4" && <NotifyBorrowers />}
+                    {activeSection === "5" && <ReportsPage />}
+                    {activeSection === "6" && <AddAdmins/>}
                 </div>
             </section>
         </>

@@ -1,96 +1,102 @@
-
-import { useEffect, useState } from "react";
-import { useNavigate,useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import API from "../services/api";
 
 const AdminLogin = () => {
-    const navigate= useNavigate()
-    const [fieldInputs, setFieldInputs] = useState({ name:'', password:''});
-    const [disableBtn, setDisableBtn] = useState(false);
-    const [errNotify, setErrNotify] = useState({ show:false,msg:'' });
-    const location = useLocation();
-    const exitMsg = location.state;
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    useEffect(() => {
-      const notify = () => {
-        // your logic
-      };
-    
-      notify();
-    }, [exitMsg]);
+  const [fieldInputs, setFieldInputs] = useState({
+    email: "",
+    password: "",
+  });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-    
-    const dummyId={name:'vijay', password:'2026'}
-    const handleValidation= (e)=>{
-     e.preventDefault()
-     setDisableBtn(true);
-     if(fieldInputs.name === dummyId.name && fieldInputs.password ===dummyId.password){
-         navigate('/admin-page');
-         return;
-     }
-     setErrNotify( {show:true,msg:'Wrong identity'} )
-     setTimeout(() => {
-         setErrNotify({ show:false,msg:'' });
-         setDisableBtn(false)
-     }, 1500);
+  
+  useEffect(() => {
+    if (location.state?.message) {
+      setError(location.state.message);
     }
+  }, [location.state]);
 
-    
-   const handleInput =(e)=>{
-    const {name,value}=e.target;
-    setFieldInputs((prev)=>({...prev,[name]:value}));
-  }
+  const handleInput = (
+    e
+  ) => {
+    const { name, value } = e.target;
+    setFieldInputs((prev) => ({ ...prev, [name]: value }));
+  };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      setLoading(true);
+      setError("");
+
+      const {data} = await API.post("/api/admin/login", {
+        email: fieldInputs.email.toLowerCase(),
+        password: fieldInputs.password,
+      });
+
+      if(data.success){
+        localStorage.setItem("loginEmail",data.email);
+        navigate("/admin-verify");
+      }
+
+    } catch (err) {
+      setError(err?.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-   
-  
-      <section className="flex-fill mx-4 mx-sm-1 my-5">
-        <div className="container ">
-          <div className="row justify-content-center">
-            <div  className={`${ errNotify.show ? 'bg-danger' : 'bg-secondary'} col-12 col-md-6 col-lg-4 p-4 text-light border rounded shadow-sm`}>
-              <h3 className="mb-4">Admin Login</h3>
-              <form onSubmit={handleValidation}>
-                <div className="mb-4">
-                  <label htmlFor="userName" className="form-label">
-                    Username
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={fieldInputs.name}
-                    onChange={handleInput}
-                    id="userName"
-                    className="form-control border border-2 "
-                    placeholder="Enter admin username"
-                    required
-                    
-                  />
-                
-                  <label htmlFor="userPassword" className="form-label">
-                    Password
-                  </label>
-                  <input
-                    type="text"
-                    name="password"
-                    onChange={handleInput}
-                    value={fieldInputs.password}
-                    id="userPassword"
-                    className="form-control border border-2 "
-                    placeholder="Enter admin password"
-                    required
-                  />
-                </div>
-                <button type="submit" className=" mb-3 btn btn-primary w-100"  disabled={disableBtn} >
-                  Login
-                </button>
-                <p >{ errNotify.show ? errNotify.msg :'Admin only page'}</p>
-              </form>
-            </div>
+    <section className="flex-fill d-flex mb-5 justify-content-center align-items-center">
+      <div className="container">
+        <div className="row justify-content-center">
+          <div
+            className={`col-12 col-md-6 col-lg-4 p-4 text-light border rounded shadow-sm ${
+              error ? "bg-danger" : "bg-secondary"
+            }`}
+          >
+            <h3 className="mb-4">Admin Login</h3>
 
-                
-              
-          
+            <form onSubmit={handleSubmit}>
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={fieldInputs.email}
+                onChange={handleInput}
+                className="form-control"
+                required
+              />
+
+              <label className="form-label mt-3">Password</label>
+              <input
+                type="password"
+                name="password"
+                value={fieldInputs.password}
+                onChange={handleInput}
+                className="form-control"
+                required
+              />
+
+              <button
+                type="submit"
+                className="btn btn-primary w-100 mt-3"
+                disabled={loading}
+              >
+                {loading ? "Logging in..." : "Login"}
+              </button>
+
+              <p className="mt-3">
+                {error ? error : "Admin only page"}
+              </p>
+            </form>
+          </div>
         </div>
       </div>
     </section>

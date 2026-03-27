@@ -1,27 +1,7 @@
 import type { Request, Response } from "express";
-import type { BookType } from "../types/book.types.js";
+import type { BookType,ResponseType,BookQuery,GetBooksResponse } from "../types/book.types.js";
 import { pool } from "../config/db.js";
-type ResponseType = {
-    success: boolean;
-    book: BookType | null;
-    message: string;
-};
 
-type BookQuery={
-  page?:string
-  limit?:string
-  search?:string
-  category?:string
-  field?:string
-}
-type GetBooksResponse={
-  success:boolean
-  page:number
-  limit:number
-  total:number
-  totalPages :number
-  books:BookType[]
-}
 const addBook = async (
     req: Request<{}, {}, Omit<BookType,"id">>,
     res: Response<ResponseType>
@@ -103,7 +83,7 @@ const getBooks= async(req:Request<{},{},{},BookQuery>,res:Response<GetBooksRespo
     }
 
     query += ` 
-    ORDER BY created_at DESC
+    ORDER BY id 
     LIMIT $${index}
     OFFSET $${index+1}
             `
@@ -121,7 +101,7 @@ const getBooks= async(req:Request<{},{},{},BookQuery>,res:Response<GetBooksRespo
     }
     
     if (category) {
-      countQuery += ` AND category = $${countIndex}`
+      countQuery += ` AND category = $${countIndex} `
       countValues.push(category)
     }
 
@@ -147,6 +127,8 @@ const getBookByIsbn = async (
     res: Response<ResponseType>
 ) => {
     try {
+
+        // console.log("step - 3");
         const { isbn } = req.params;
 
         const result = await pool.query<BookType>(

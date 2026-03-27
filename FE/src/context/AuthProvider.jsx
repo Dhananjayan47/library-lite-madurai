@@ -13,7 +13,7 @@ const AuthProvider = ({children}) => {
 
         const restoreSession = async () => {
             try {
-                const res = API.get("api/user/refresh");
+                const res = API.get("/api/admin/refresh");
 
                 const newToken = res.data.accessToken;
 
@@ -43,7 +43,7 @@ const AuthProvider = ({children}) => {
                 const originalRequest = error.config;
                 if(error.response?.status === 401 && !originalRequest._retry){
                     originalRequest._retry=true;
-                    const newToken = await API.get("/api/user/refresh").then((res)=>res.data.accessToken)
+                    const newToken = await API.get("/api/admin/refresh").then((res)=>res.data.accessToken)
                 
                     if(newToken){
                       API.defaults.headers.common["Authorization"]=`Bearer ${newToken}`;
@@ -61,7 +61,7 @@ const AuthProvider = ({children}) => {
 
     const handleLogout=async()=>{
         try {
-            const {data} = API.get("/api/user/logout");
+            const {data} = API.get("/api/admin/logout");
 
             if(data.success){
                 setUser(null);

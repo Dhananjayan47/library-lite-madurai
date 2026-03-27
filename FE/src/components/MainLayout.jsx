@@ -1,7 +1,9 @@
 import NavigationBar from './NavigationBar'
 import Footer from './Footer'
+import { Outlet } from 'react-router-dom';
 
-const Layout = ({ children }) => {
+const MainLayout = () => {
+  
     return (
       <div className="d-flex flex-column min-vh-100 ">
         
@@ -9,8 +11,8 @@ const Layout = ({ children }) => {
           <NavigationBar />
         </header>
   
-        <main className="flex-grow-1 container-fluid px-3 d-flex">
-          {children}
+        <main className="flex-grow-1 container-fluid px-3 d-flex flex-column">
+          <Outlet/>
         </main>
   
         <footer className="p-2 bg-dark">
@@ -21,4 +23,4 @@ const Layout = ({ children }) => {
     );
   };
   
-  export default Layout
+  export default MainLayout

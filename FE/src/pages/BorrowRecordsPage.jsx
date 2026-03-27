@@ -1,0 +1,195 @@
+import { useState, useEffect } from "react";
+import API from "../services/api";
+import { Table, Pagination, Spinner } from "react-bootstrap";
+import { FaSearch } from "react-icons/fa";
+
+const BorrowRecordsPage = () => {
+    const [field, setField] = useState("borrowerName");
+    const [search, setSearch] = useState("");
+    const [records, setRecords] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [limit] = useState(10);
+
+    const handleSearch = async () => {
+        try {
+            setLoading(true);
+
+            const params = {
+                page: 1,
+                limit,
+                field,
+                search,
+            };
+
+            const { data } = await API.get("/api/borrow", { params });
+
+            setRecords(data.borrowRecords);
+            setTotalPages(data.pagination.totalPages);
+            setPage(1);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getPages = () => {
+        const start = Math.max(1, page - 2);
+        const end = Math.min(totalPages, page + 2);
+        let pages = [];
+        for (let i = start; i <= end; i++) {
+            pages.push(i);
+        }
+
+        return pages;
+    };
+
+    useEffect(() => {
+        const fetchBooks = async () => {
+            try {
+                setLoading(true);
+                const { data } = await API.get(
+                    `/api/borrow?page=${page}&limit=${limit}`
+                );
+                console.log(data);
+                setRecords(data.borrowRecords);
+                setTotalPages(data.pagination.totalPages);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchBooks();
+    }, []);
+
+    return (
+        <>
+            <section className=" flex-fill w-100" style={{ minWidth: 0 }}>
+                <section className=" mb-3 border border-dark rounded p-3">
+                    <h3>Book Search</h3>
+                    <div className=" d-flex gap-2 flex-wrap">
+                        <div style={{ minWidth: "150px" }}>
+                            <label className=" form-label">Search By</label>
+
+                            <select
+                                className=" rounded form-select"
+                                value={field}
+                                onChange={(e) => setField(e.target.value)}
+                            >
+                                <option value="isbn">Id</option>
+                                <option value="title">Title</option>
+                                <option value="borrower_name">Author</option>
+                                <option value="book_id">Isbn</option>
+                            </select>
+                        </div>
+                        <div
+                            className=" flex-grow-1"
+                            style={{ minWidth: "200px" }}
+                        >
+                            <label className=" form-label">Search</label>
+                            <input
+                                className="form-control rounded"
+                                placeholder="Enter search..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                        </div>
+                        <button
+                            disabled={!search}
+                            className=" btn btn-primary align-self-end flex-shrink-0"
+                            onClick={handleSearch}
+                        >
+                            <FaSearch />
+                        </button>
+                    </div>
+                </section>
+                <section className=" my-3 p-2 border rounded border-dark overflow-x-scroll ">
+                    <Table
+                        striped
+                        bordered
+                        hover
+                        responsive
+                        size="sm"
+                        className=" "
+                    >
+                        <thead className=" table-dark">
+                            <tr>
+                                <th>Record id</th>
+                                <th>Book ID</th>
+                                <th>Title</th>
+                                <th>Isbn</th>
+                                <th>Borrower Name</th>
+                                <th>Borrower No</th>
+                                <th>Borrower at</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading && (
+                                <tr>
+                                    <td colSpan={7} className="text-center">
+                                        <Spinner size="sm" />
+                                    </td>
+                                </tr>
+                            )}
+                            {!loading && records.length === 0 && (
+                                <tr>
+                                    <td colSpan={7} className=" text-center">
+                                        No Records found
+                                    </td>
+                                </tr>
+                            )}
+
+                            {!loading &&
+                                records.length > 0 &&
+                                records.map((r) => (
+                                    <tr key={r.id}>
+                                        <td>{r.id}</td>
+                                        <td>{r.book_id}</td>
+                                        <td>{r.title}</td>
+                                        <td>{r.isbn}</td>
+                                        <td>{r.borrower_name}</td>
+                                        <td>{r.borrower_phone}</td>
+                                        <td>{r.borrowed_at.split("T")[0]}</td>
+                                    </tr>
+                                ))}
+                        </tbody>
+                    </Table>
+                </section>
+                <section className=" flex-center">
+                    <Pagination>
+                        <Pagination.First
+                            disabled={page === 1}
+                            onClick={() => setPage(1)}
+                        />
+                        <Pagination.Prev
+                            disabled={page === 1}
+                            onClick={() => setPage((prev) => prev - 1)}
+                        />
+                        {getPages().map((p) => (
+                            <Pagination.Item
+                                key={p}
+                                active={page === p}
+                                onClick={() => setPage(p)}
+                            >
+                                {p}
+                            </Pagination.Item>
+                        ))}
+                        <Pagination.Next
+                            disabled={page === totalPages}
+                            onClick={() => setPage((prev) => prev + 1)}
+                        />
+                        <Pagination.Last
+                            disabled={page === totalPages}
+                            onClick={() => setPage(totalPages)}
+                        />
+                    </Pagination>
+                </section>
+            </section>
+        </>
+    );
+};
+
+export default BorrowRecordsPage;

@@ -382,17 +382,24 @@ const DeleteBook = () => {
         if (!searchMode) {
             try {
                 console.log(formInputs);
-                setFormInputs({
-                    id: "",
-                    title: "",
-                    isbn: "",
-                    author: "",
-                    category: "",
-                });
-                setBookIsbn("");
-                setSearchMode(true);
-            } catch (error) {
+                const {data}= API.delete(`/api/books/${bookIsbn}`)
+                if(data.success){
+                    setFormInputs({
+                        id: "",
+                        title: "",
+                        isbn: "",
+                        author: "",
+                        category: "",
+                    });
+                    setBookIsbn("");
+
+                    setSearchMode(true);
+                    alert(data.message)
+                }
+            }  catch (error) {
                 console.log(error);
+            }finally{
+                setIsSubmitted(false);
             }
         }
     };

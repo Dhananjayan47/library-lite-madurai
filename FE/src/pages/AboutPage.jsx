@@ -11,7 +11,7 @@ const AboutPage = () => {
                       <h6>Central Library</h6>
                     </div>
                     <div>
-                        <p>
+                        <p style={{ textAlign:"justify"}}> 
                             The <b> District Central Library</b> in Simmakkal, Madurai,
                             is a well-regarded, long-standing public institution
                             that is <b> 74 years old</b>. Located at <u> No. 33–35, Thiru Vi
