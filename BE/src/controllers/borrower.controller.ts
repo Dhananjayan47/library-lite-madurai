@@ -7,7 +7,7 @@ import type {
 } from "../types/borrow.types.js";
 import type { ApiResponse, BorrowApiResponse } from "../types/api.types.js";
 import { pool } from "../config/db.js";
-import { log } from "node:console";
+// import { log } from "node:console";
 
 const addBorrowDetails = async (
     req: Request<{}, {}, CreateBorrowRequest>,
