@@ -1,55 +1,67 @@
-import { useEffect,useState } from "react";
+import { useEffect } from "react";
 import { Card, ListGroup } from "react-bootstrap";
-import { reportService } from "../services/reportService";
-import {  MonthlyBorrowChart } from "../components/charts/BorrowTrendChart";
+// import { reportService } from "../services/reportService";
+import { MonthlyBorrowChart } from "../components/charts/BorrowTrendChart";
 import { TopBooksChart } from "../components/charts/TopBooksChart";
 import { ReturnStatsChart } from "../components/charts/ReturnedVsActiveChart";
 import { OverdueChart } from "../components/charts/OverdueChart";
 import { useReportSearch } from "../hooks/useReportSearch";
 import Loading from "../components/Loading";
 const ReportsPage = () => {
+    const { stats, charts, loading, fetchReports } = useReportSearch();
 
-const { stats,charts,loading,fetchReports} =useReportSearch(); 
+    useEffect(() => {
+        fetchReports();
+    }, []);
 
-useEffect(()=>{
-    fetchReports();
-    
-},[]);
-useEffect(()=>{
-    
-    console.log(stats,charts);
-},[loading])
+    if (loading) return <Loading />;
+    return (
+        <section className=" flex-fill w-100 text-light ">
+            <section className=" pb-4">
+                <h3>Data Reports:</h3>
+                <section className="mb-3">
+  <div className="report-card">
+    <h3 className="report-title">Reports</h3>
 
-if(loading) return <Loading/>
-    return ( <section className=" flex-fill w-100">
-        <section className="mb-3">
-            <Card>
-                <Card.Header>Reports</Card.Header>
-                <Card.Body>
-                    <Card.Title>Books Report</Card.Title>
-                    <ListGroup className=" list-group-flush">
-                        <ListGroup.Item> Total Books : {stats.totalBooks}</ListGroup.Item>
-                        <ListGroup.Item>Total Borrows All Time : {stats.totalBorrowed}</ListGroup.Item>
-                        <ListGroup.Item>Active Borrows : {stats.activeBorrows}</ListGroup.Item>
-                        <ListGroup.Item>Over Due Books : {stats.overdueBooks}</ListGroup.Item>
-                    </ListGroup>
-                </Card.Body>
-            </Card>
+    <div className="report-item">
+      <p>Total Books</p>
+      <span>{stats.totalBooks}</span>
+    </div>
+
+    <div className="report-item">
+      <p>Total Borrows All Time</p>
+      <span>{stats.totalBorrowed}</span>
+    </div>
+
+    <div className="report-item">
+      <p>Active Borrows</p>
+      <span>{stats.activeBorrows}</span>
+    </div>
+
+    <div className="report-item">
+      <p>Overdue Books</p>
+      <span>{stats.overdueBooks}</span>
+    </div>
+  </div>
+</section>
+                <section className="mb-3 border text-light rounded p-2">
+                    <h3>Monthly Borrow :</h3>
+                    <MonthlyBorrowChart data={charts.monthlyTrend} />
+                </section>
+                <section className="mb-3">
+                    <h3>Top Borrowed Books :</h3>
+                    <TopBooksChart data={charts.topBooks} />
+                </section>
+                <section className="mb-3 border text-light rounded p-2">
+                    <h3>Borrowed & Returns :</h3>
+                    <ReturnStatsChart data={charts.returnStats} />
+                </section>
+                <section className="mb-5">
+                    <OverdueChart data={charts.overdueTrend} />
+                </section>
+            </section>
         </section>
-        <section className="mb-3 border border-dark rounded p-2">
-            <h3>Monthly Borrow :</h3>
-            <MonthlyBorrowChart data={charts.monthlyTrend}/>
-        </section>
-        {/* <section className="mb-3">
-            <TopBooksChart data={charts.topBooks}/>
-        </section> */}
-        <section className="mb-3 border border-dark rounded p-2">
-            <ReturnStatsChart data={charts.returnStats}/>
-        </section>
-        {/* <section className="mb-3">
-            <OverdueChart data={charts.overdueTrend}/>
-        </section> */}
-    </section>  );
-}
- 
+    );
+};
+
 export default ReportsPage;

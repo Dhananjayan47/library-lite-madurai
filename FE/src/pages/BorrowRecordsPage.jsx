@@ -53,9 +53,14 @@ const BorrowRecordsPage = () => {
                 const { data } = await API.get(
                     `/api/borrow?page=${page}&limit=${limit}`
                 );
-                console.log(data);
-                setRecords(data.borrowRecords);
-                setTotalPages(data.pagination.totalPages);
+                // console.log(data);
+                if(data.success){
+
+                    setRecords(data.borrowRecords);
+                    console.log(data.borrowRecords);
+                    
+                    setTotalPages(data.pagination.totalPages);
+                }
             } catch (error) {
                 console.error(error);
             } finally {
@@ -67,8 +72,8 @@ const BorrowRecordsPage = () => {
 
     return (
         <>
-            <section className=" flex-fill w-100" style={{ minWidth: 0 }}>
-                <section className=" mb-3 border border-dark rounded p-3">
+            <section className=" flex-fill w-100 text-light" style={{ minWidth: 0 }}>
+                <section className=" mb-3 border  rounded p-3">
                     <h3>Book Search</h3>
                     <div className=" d-flex gap-2 flex-wrap">
                         <div style={{ minWidth: "150px" }}>
@@ -106,7 +111,7 @@ const BorrowRecordsPage = () => {
                         </button>
                     </div>
                 </section>
-                <section className=" my-3 p-2 border rounded border-dark overflow-x-scroll ">
+                <section className=" my-3 p-2 border rounded overflow-x-scroll ">
                     <Table
                         striped
                         bordered

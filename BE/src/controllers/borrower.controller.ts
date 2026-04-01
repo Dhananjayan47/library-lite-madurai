@@ -77,9 +77,7 @@ const getBorrowRecords = async (
         const limit = parseInt(req.query.limit || "10");
         const search = req.query.search || "";
         const field = req.query.field || "title";
-
-        console.log("step - 1");
-        
+  
         const offset = (page - 1) * limit;
 
         const allowedFields = [
@@ -88,7 +86,7 @@ const getBorrowRecords = async (
             "borrower_name",
             "borrower_phone",
         ];
-        let dataQuery = ` SELECT br.book_id,
+        let dataQuery = ` SELECT br.id,br.book_id,
   br.borrower_name,
   br.borrower_phone,
   br.due_date,
@@ -217,28 +215,28 @@ const getBorrowRecordsForNotification= async(req:Request<{},{},{},BorrowQuery>,r
         const limit = parseInt(req.query.limit || "10")
         const offset = (page - 1) * limit
 
-        console.log("be -1");
+       
         
-        const query = ` SELECT br.book_id,b.title,b.isbn,br.borrower_name,br.borrower_phone,br.borrower_email ,br.borrowed_at,br.due_date,GREATEST(br.due_date - CURRENT_DATE,0) AS days_left FROM borrow_records br JOIN books b ON br.book_id = b.id WHERE br.returned_at IS NULL AND br.due_date<= CURRENT_DATE + INTERVAL '3 days' ORDER BY br.due_date ASC LIMIT $1 OFFSET $2`
+        const query = ` SELECT br.book_id,b.title,b.isbn,br.borrower_name,br.borrower_phone,br.borrower_email ,br.borrowed_at,br.due_date,(br.due_date - CURRENT_DATE) AS days_left FROM borrow_records br JOIN books b ON br.book_id = b.id WHERE br.returned_at IS NULL AND br.due_date<= CURRENT_DATE + INTERVAL '3 days' ORDER BY br.due_date ASC LIMIT $1 OFFSET $2`
         const countQuery =  `
         SELECT COUNT(*) 
         FROM borrow_records br
         WHERE br.returned_at IS NULL
         AND br.due_date <= CURRENT_DATE + INTERVAL '3 days'
       `;
-        console.log("be -1.1");
+       
         const [dataResult, countResult] = await Promise.all([
             pool.query(query,[limit,offset]),
             pool.query(countQuery),
         ]);
-        console.log("be -2");
+      
         const total = parseInt(countResult.rows[0]?.count || 0);
         const totalPages = Math.ceil(total / limit);
         
-        console.log("be -3");
+       
         res.status(200).json({success:true, message:"Records Founded Successfully", borrowRecords:dataResult.rows,pagination:{total,page,limit,totalPages}})
     } catch (error) {
-        console.log("be -4");
+       
         return res
         .status(500)
         .json({ success: false, message: " Internal Server Error" });

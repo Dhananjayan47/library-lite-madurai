@@ -17,6 +17,7 @@ import ProtectedRoute from "./ProtectedRoute.jsx";
 import MainLayout from "../components/MainLayout.jsx";
 import AdminLayout from "../components/AdminLayout.jsx";
 import { VerifyPage } from "../components/AdminComponents.jsx";
+import AuthProvider from "../context/AuthProvider.jsx";
 const HomePage = lazy(() => import("../pages/HomePage.jsx"));
 const AboutPage = lazy(() => import("../pages/AboutPage.jsx"));
 const AdminPage = lazy(() => import("../pages/AdminPage.jsx"));
@@ -43,7 +44,7 @@ const AppRoutes = () => {
                 <Route path="/book" element={<BooksPage />} />
                 <Route path="/contact" element={<ContactPage />} />
             </Route>
-            <Route element={<AdminLayout />}>
+            <Route element={<AuthProvider><AdminLayout /></AuthProvider>}>
                 <Route path="/admin-login" element={<AdminLogin />} />
                 <Route path="/admin-verify" element={<VerifyPage />} />
                 <Route element={<ProtectedRoute />}>

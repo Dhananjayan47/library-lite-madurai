@@ -14,7 +14,7 @@ export const useBorrowSearch =()=>{
     const getRecordsForNotify = async ()=>{
         try {
             setLoading(true);
-            console.log("1");
+           
             
             const params = {
                 page: 1,
@@ -23,19 +23,21 @@ export const useBorrowSearch =()=>{
             };
             const {data}=await borrowService.NotifyTable(params);
             if(data.success){
-                console.log("2");
+               
                 setTotalPages(data.pagination.totalPages);
                 setLimit(data.pagination.limit)
                 setRecords(data.borrowRecords)
+                console.log(data.borrowRecords);
+                
             }
         } catch (error) {
-            console.log("3");
+           
             setError("Error When Try to get Alert Records",error)
         } finally{
-            console.log("4");
+            
             setLoading(false)
         }
-        console.log("5");
+      
     }
     const reset=()=>{
         setLoading(false)

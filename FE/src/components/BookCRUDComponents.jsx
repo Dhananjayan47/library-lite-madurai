@@ -3,7 +3,9 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Book_Categories } from "../constants/bookCategories";
 import API from "../services/api";
+import { useToast } from "../context/ToastProvider";
 const AddBook = () => {
+    const {showToast}= useToast();
     const [formInputs, setFormInputs] = useState({
         title: "",
         author: "",
@@ -19,14 +21,14 @@ const AddBook = () => {
 
         const {title,author,isbn,published_year,category}=formInputs;
         if(!title||!author||!isbn||!published_year||!category){
-            return alert('Fill All the fields')
+            return showToast('fill all fields',"danger")
         }
 
         try {
             setIsSubmitted(true);
             const {data} =await API.post('/api/books',formInputs);
             if(data.success){
-                alert(data.message);
+                showToast(data.message,"success")
                 setFormInputs({
                     title: "",
                     author: "",
@@ -62,7 +64,7 @@ const AddBook = () => {
     };
 
     return (
-        <section className=" flex-center mb-4 mt-2">
+        <section className=" flex-center mb-4 mt-2 text-light">
             <div className="container">
                 <p className="display-6 fw-medium">Enter Book Details (Add)</p>
 
@@ -151,6 +153,8 @@ const AddBook = () => {
 };
 
 const EditBook = () => {
+
+    const {showToast}=useToast();
     const [bookIsbn, setBookIsbn] = useState("");
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [searchMode, setSearchMode] = useState(true);
@@ -162,6 +166,40 @@ const EditBook = () => {
         published_year:"",
         category: "",
     });
+    const validateSearch = () => {
+        if (!bookIsbn) return "ISBN is required";
+      
+        if (!/^\d{10,13}$/.test(bookIsbn)) {
+          return "ISBN must be 10–13 digits";
+        }
+      
+        return null;
+      };
+      
+      const validateUpdate = () => {
+        if (!formInputs.title.trim()) return "Title is required";
+      
+        if (!formInputs.author.trim()) return "Author is required";
+      
+        if (!formInputs.isbn) return "ISBN is required";
+      
+        if (!/^\d{10,13}$/.test(formInputs.isbn)) {
+          return "Invalid ISBN format";
+        }
+      
+        if (!formInputs.published_year) return "Published year required";
+      
+        const year = Number(formInputs.published_year);
+        const currentYear = new Date().getFullYear();
+      
+        if (year < 1000 || year > currentYear) {
+          return "Invalid published year";
+        }
+      
+        if (!formInputs.category.trim()) return "Category required";
+      
+        return null;
+      };
     const handleInputs = (e) => {
         const { name, value } = e.target;
         if (searchMode) {
@@ -173,62 +211,70 @@ const EditBook = () => {
 
     const handleSearchOrUpdate = async (e) => {
         e.preventDefault();
-
-       
-        //search mode api call
-        if (bookIsbn && searchMode) {
-            try {
-                setIsSubmitted(true);
-                const {data} =await API.get(`/api/books/${bookIsbn}`);
-
-                if(data.success){
-                    setFormInputs({
-                        id: data.book.id,
-                        title: data.book.title,
-                        isbn: data.book.isbn,
-                        author: data.book.author,
-                        published_year: data.book.published_year,
-                        category: data.book.category
-                    });
-                    setSearchMode(false)
-                }
-            } catch (error) {
-                console.log(error.message);
-            }finally{
-                setIsSubmitted(false)
+      
+        // 🔍 SEARCH MODE
+        if (searchMode) {
+          const error = validateSearch();
+          if (error) return showToast(error, "danger");
+      
+          try {
+            setIsSubmitted(true);
+      
+            const { data } = await API.get(`/api/books/${bookIsbn}`);
+      
+            if (data.success) {
+              setFormInputs({
+                id: data.book.id,
+                title: data.book.title,
+                isbn: data.book.isbn,
+                author: data.book.author,
+                published_year: data.book.published_year,
+                category: data.book.category,
+              });
+      
+              setSearchMode(false);
             }
-            return;
+          } catch (error) {
+            showToast(error?.response?.data?.message || "Book not found", "danger");
+          } finally {
+            setIsSubmitted(false);
+          }
+      
+          return;
         }
-        //update mode api call
-        if (!searchMode) {
-            try {
-                console.log(formInputs);
-                setIsSubmitted(true);
-                const {data} =await API.put(`/api/books/${bookIsbn}`,formInputs);
-
-                if(data.success){
-
-                    setFormInputs({
-                        id: "",
-                        title: "",
-                        isbn: "",
-                        author: "",
-                        published_year:"",
-                        category: "",
-                    });
-                    setBookIsbn("");
-                    setSearchMode(true);
-                    alert(data.message);
-                }
-            } catch (error) {
-                console.log(error);
-            }finally{
-                setIsSubmitted(false)
-            }
+      
+        // ✏️ UPDATE MODE
+        const error = validateUpdate();
+        if (error) return showToast(error, "danger");
+      
+        try {
+          setIsSubmitted(true);
+      
+          const { data } = await API.put(`/api/books/${bookIsbn}`, formInputs);
+      
+          if (data.success) {
+            setFormInputs({
+              id: "",
+              title: "",
+              isbn: "",
+              author: "",
+              published_year: "",
+              category: "",
+            });
+      
+            setBookIsbn("");
+            setSearchMode(true);
+      
+            showToast(data.message, "success");
+          }
+        } catch (error) {
+          showToast(error?.response?.data?.message || "Update failed", "danger");
+        } finally {
+          setIsSubmitted(false);
         }
-    };
+      };
     return (
-        <section className=" flex-center mb-4 mt-2">
+        <section className=" flex-center mb-4 mt-2 text-light">
             <div className="container">
                 <p className="display-6 fw-medium">Enter Book Details (Edit)</p>
 
@@ -326,6 +372,7 @@ const EditBook = () => {
     );
 };
 const DeleteBook = () => {
+    const{showToast}=useToast();
     const [bookIsbn, setBookIsbn] = useState("");
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [searchMode, setSearchMode] = useState(true);
@@ -337,6 +384,41 @@ const DeleteBook = () => {
         published_year:"",
         category: "",
     });
+
+    const validateSearch = () => {
+        if (!bookIsbn) return "ISBN is required";
+      
+        if (!/^\d{10,13}$/.test(bookIsbn)) {
+          return "ISBN must be 10–13 digits";
+        }
+      
+        return null;
+      };
+      
+      const validateForm = () => {
+        if (!formInputs.title.trim()) return "Title is required";
+      
+        if (!formInputs.author.trim()) return "Author is required";
+      
+        if (!formInputs.isbn) return "ISBN is required";
+      
+        if (!/^\d{10,13}$/.test(formInputs.isbn)) {
+          return "Invalid ISBN format";
+        }
+      
+        if (!formInputs.published_year) return "Published year required";
+      
+        if (
+          formInputs.published_year < 1000 ||
+          formInputs.published_year > new Date().getFullYear()
+        ) {
+          return "Invalid published year";
+        }
+      
+        if (!formInputs.category.trim()) return "Category required";
+      
+        return null;
+      };
     const handleInputs = (e) => {
         const { name, value } = e.target;
         if (searchMode) {
@@ -346,65 +428,72 @@ const DeleteBook = () => {
         }
     };
 
-    const handleSearchOrUpdate = async(e) => {
+    const handleSearchOrUpdate = async (e) => {
         e.preventDefault();
-
-        // console.log(searchMode);
-        // search mode api call
-
-        if (searchMode && bookIsbn ) {
-            try {
-                setIsSubmitted(true)
-                const { data } = await API.get(`/api/books/${bookIsbn}`);
-                
-                if(data.success){
-                    setFormInputs({
-                        id: data.book.id,
-                        title: data.book.title,
-                        author: data.book.author,
-                        isbn: data.book.isbn,
-                        published_year: data.book.published_year,
-                        category: data.book.category
-                    });
-
-                    setSearchMode(false)
-                }
-                
-            } catch (error) {
-                console.log(error.message);
-            } finally{
-                setIsSubmitted(false);
+      
+        // 🔍 SEARCH MODE
+        if (searchMode) {
+          const error = validateSearch();
+          if (error) return showToast(error, "danger");
+      
+          try {
+            setIsSubmitted(true);
+      
+            const { data } = await API.get(`/api/books/${bookIsbn}`);
+      
+            if (data.success) {
+              setFormInputs({
+                id: data.book.id,
+                title: data.book.title,
+                author: data.book.author,
+                isbn: data.book.isbn,
+                published_year: data.book.published_year,
+                category: data.book.category,
+              });
+      
+              setSearchMode(false);
             }
-            return;
+          } catch (error) {
+            showToast(error?.response?.data?.message || "Book not found", "danger");
+          } finally {
+            setIsSubmitted(false);
+          }
+      
+          return;
         }
-
-        // delete mode api call
-        if (!searchMode) {
-            try {
-                console.log(formInputs);
-                const {data}= API.delete(`/api/books/${bookIsbn}`)
-                if(data.success){
-                    setFormInputs({
-                        id: "",
-                        title: "",
-                        isbn: "",
-                        author: "",
-                        category: "",
-                    });
-                    setBookIsbn("");
-
-                    setSearchMode(true);
-                    alert(data.message)
-                }
-            }  catch (error) {
-                console.log(error);
-            }finally{
-                setIsSubmitted(false);
-            }
+      
+        // 🗑 DELETE MODE
+        const error = validateForm();
+        if (error) return showToast(error, "danger");
+      
+        try {
+          setIsSubmitted(true);
+      
+          const { data } = await API.delete(`/api/books/${bookIsbn}`); // ✅ fixed await
+      
+          if (data.success) {
+            setFormInputs({
+              id: "",
+              title: "",
+              isbn: "",
+              author: "",
+              category: "",
+              published_year: ""
+            });
+      
+            setBookIsbn("");
+            setSearchMode(true);
+      
+            showToast(data.message, "success");
+          }
+        } catch (error) {
+          showToast(error?.response?.data?.message || "Delete failed", "danger");
+        } finally {
+          setIsSubmitted(false);
         }
-    };
+      };
     return (
-        <section className=" flex-center mb-4 mt-2">
+        <section className=" flex-center mb-4 mt-2 text-light">
             <div className="container">
                 <p className="display-6 fw-medium">
                     Enter Book Details (Delete)

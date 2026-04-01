@@ -7,7 +7,7 @@ const NavigationBar = () => {
   expand="lg"
   bg="dark"
   variant="dark"
-  fixed="top"
+  // fixed="top"
   
 >
   <Container>

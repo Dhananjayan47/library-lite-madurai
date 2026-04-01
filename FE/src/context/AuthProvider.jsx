@@ -13,10 +13,12 @@ const AuthProvider = ({children}) => {
 
         const restoreSession = async () => {
             try {
-                const res = API.get("/api/admin/refresh");
+              
+                
+                const res =await API.get("/api/admin/refresh");
 
                 const newToken = res.data.accessToken;
-
+              
                 if (isMounted) {
                     setAccessToken(newToken);
                     API.defaults.headers.common[
@@ -41,18 +43,21 @@ const AuthProvider = ({children}) => {
             (response) => response,
             async (error) => {
                 const originalRequest = error.config;
-                if(error.response?.status === 401 && !originalRequest._retry){
-                    originalRequest._retry=true;
-                    const newToken = await API.get("/api/admin/refresh").then((res)=>res.data.accessToken)
+                if (error.response?.status === 401 && !originalRequest._retry) {
+                    originalRequest._retry = true;
                 
-                    if(newToken){
-                      API.defaults.headers.common["Authorization"]=`Bearer ${newToken}`;
-                      return API(originalRequest);  
-                    }else{
+                    try {
+                        console.log(2);
+                        
+                        const res = await API.get("/api/admin/refresh");
+                        const newToken = res.data.accessToken;
+                
+                        API.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
+                        return API(originalRequest);
+                    } catch (err) {
                         setAccessToken(null);
+                        return Promise.reject(err);
                     }
-                
-                return Promise.reject(error);
                 }
             }
         );

@@ -9,6 +9,7 @@ import {
 import BorrowRecordsPage from "./BorrowRecordsPage";
 import NotifyBorrowers from "./NotifyBorrowers";
 import ReportsPage from "./ReportsPage";
+import LogoutButton from "./AdminLogout";
 const AdminDashboard = () => {
     const [activeSection, setActiveSection] = useState("1");
 
@@ -49,6 +50,7 @@ const AdminDashboard = () => {
                             <Nav.Link onClick={() => setActiveSection("6")}>
                                 Add Admin
                             </Nav.Link>
+                            <LogoutButton/>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>
@@ -62,6 +64,7 @@ const AdminDashboard = () => {
                     {activeSection === "4" && <NotifyBorrowers />}
                     {activeSection === "5" && <ReportsPage />}
                     {activeSection === "6" && <AddAdmins/>}
+
                 </div>
             </section>
         </>

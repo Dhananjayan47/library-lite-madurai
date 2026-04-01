@@ -1,7 +1,7 @@
 
 const ContactPage = () => {
     return ( <>
-        <section>
+        <section className=" text-light">
           <section>
             <h3>Contact</h3>
             <div className=" border bg-dark text-light border-1 rounded p-2 mb-1">
@@ -12,7 +12,7 @@ const ContactPage = () => {
                           
               </p>
               <p> <b>Contact No :</b> <br />
-              Admin : 987654321
+              Admin : 04522622814
                          
               </p>
               <p><b>Location :</b>

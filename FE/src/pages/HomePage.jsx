@@ -3,7 +3,10 @@ const HomePage = () => {
     return (
         <>
             <section >
-                <section >
+                <section>
+                    <h1 className=" text-center  text-light">Madurai District Library</h1>
+                </section>
+                <section className=" border border-2 rounded shadow p-2" >
                     <div className=" img-con">
                         <div className=" img-wrapper">
                             <img src="/logos/FP.jpg"/>
@@ -11,7 +14,7 @@ const HomePage = () => {
                     </div>
                 </section>
                 <section className=" my-3">
-                    <div className=" text-center">
+                    <div className=" text-center text-light">
                         <h5>Key Facilities</h5>
                     </div>
                     <div className=" d-flex flex-wrap row-gap-2 flex-lg-nowrap column-gap-lg-2">

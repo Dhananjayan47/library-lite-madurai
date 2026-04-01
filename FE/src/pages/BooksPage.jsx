@@ -60,7 +60,7 @@ const BooksPage = () => {
 
     return (
         <>
-         <section className=" flex-fill w-100">
+         <section className="text-light flex-fill w-100">
                 <section className=" mb-3 ">
                     <h3>Book Search</h3>
                     <div className="d-flex gap-3 align-items-end flex-wrap">

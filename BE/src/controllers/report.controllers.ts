@@ -7,7 +7,7 @@ import { pool } from "../config/db.js";
 
 const getDataForReports = async(req:Request,res:Response<Omit<ApiResponse<DashboardStats>,'pagination'>>)=>{
     try {
-        console.log(1)
+       
         const query = `
         SELECT 
         (SELECT COUNT(*) FROM books) AS total_books,
@@ -16,10 +16,10 @@ const getDataForReports = async(req:Request,res:Response<Omit<ApiResponse<Dashbo
         (SELECT COUNT(*) FROM borrow_records WHERE returned_at IS NULL AND due_date < CURRENT_DATE) AS overdue_books;
         `;
         
-        console.log(2)
+      
         const result = await pool.query(query);
         const row = result.rows[0];
-        console.log(3)
+      
         
         const stats: DashboardStats = {
             totalBooks: row.total_books,
@@ -28,14 +28,14 @@ const getDataForReports = async(req:Request,res:Response<Omit<ApiResponse<Dashbo
             overdueBooks: row.overdue_books,
         };
         
-        console.log(4)
+     
         
         res.status(200).json({success:true,message:"Successfully get the Results",data:stats})
         
         
         
     } catch (error) {
-        console.log(5)
+      
         return res.status(500).json({
             success:false,message:"Internal Server Error",
         });

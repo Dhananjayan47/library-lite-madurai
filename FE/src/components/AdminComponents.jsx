@@ -7,6 +7,9 @@ import API from "../services/api";
 import { useBookSearch } from "../hooks/useBookSearch";
 import { borrowService } from "../services/borrowService";
 import AuthContext from "../context/AuthContext";
+import { useToast } from "../context/ToastProvider";
+
+
 const BookUpdates = () => {
     return (
         <section className="bg-dark p-3 text-white rounded mb-3">
@@ -171,6 +174,8 @@ const BookSearch = ({
 );
 
 const BorrowUpdates = () => {
+
+    const {showToast} =useToast()
     const [activePage, setActivePage] = useState("borrow-update");
     const [formData, setFormData] = useState({
         borrower_name: "",
@@ -186,7 +191,39 @@ const BorrowUpdates = () => {
     const [bookIsbn, setBookIsbn] = useState("");
     const [selectedBook, setSelectedBook] = useState(null);
     const [searchMode, setSearchMode] = useState(true);
-    
+    const validateIsbn = () => {
+        if (!bookIsbn) return "ISBN is required";
+      
+        if (!/^\d{10,13}$/.test(bookIsbn)) {
+          return "ISBN must be 10–13 digits";
+        }
+      
+        return null;
+      };
+
+
+      const validateBorrow = () => {
+        if (!selectedBook) return "Select a book";
+      
+        if (!formData.borrower_name.trim()) {
+          return "Borrower name required";
+        }
+      
+        if (!/^\d{10}$/.test(formData.contact)) {
+          return "Invalid phone number";
+        }
+      
+        if (!formData.dueDate) return "Due date required";
+      
+        const todayStr = new Date().toISOString().split("T")[0];
+        if (formData.dueDate < todayStr) {
+          return "Due date cannot be in the past";
+        }
+      
+        return null;
+      };
+
+
     const handleBorrowerDataInput = (e) => {
         const { name, value } = e.target;
 
@@ -195,29 +232,34 @@ const BorrowUpdates = () => {
 
     const handleSearchByIsbn = async (e) => {
         e.preventDefault();
-        if(activePage === "borrow-update"){
-            
-            searchByIsbn(bookIsbn);
-        }else{
-            borrowSearchByIsbn(bookIsbn);
-        }
-        setSearchMode(false);
+
+        const error = validateIsbn();
+  if (error) return showToast(error, "danger");
+
+
+  try {
+    if (activePage === "borrow-update") {
+      await searchByIsbn(bookIsbn);
+    } else {
+      await borrowSearchByIsbn(bookIsbn);
+    }
+
+    setSearchMode(false);
+  } catch  {
+    showToast("Search failed", "danger");
+  }
     };
 
     const handleBorrowInfoSubmit = async (e) => {
         e.preventDefault();
 
+
+  const error = validateBorrow();
+  if (error) return showToast(error, "danger");
+
+
         try {
-            if (!selectedBook) return alert("Select a book");
-
-            if (!formData.borrower_name.trim())
-                return alert("Borrower name required");
-
-            if (!/^\d{10}$/.test(formData.contact))
-                return alert("Invalid phone number");
-
-            if (!formData.dueDate) return alert("Due date required");
-
+         
             const borrow_data = {
                 book_id: selectedBook.id,
                 borrower_name: formData.borrower_name,
@@ -227,12 +269,12 @@ const BorrowUpdates = () => {
             const { data } = await API.post("/api/borrow", borrow_data);
 
             if (data.success) {
-                alert(data.message)
+               showToast(data.message,"success")
                 handleSetDefault();
             }
-        } catch (error) {
-            console.log(error);
-        }
+        }  catch (error) {
+    showToast(error?.response?.data?.message || "Borrow failed", "danger");
+  }
     };
 
     const handleSetDefault=()=>{
@@ -243,11 +285,16 @@ const BorrowUpdates = () => {
         reset();
     }
     const handleReceiveUpdate= async()=>{
+        const error = validateIsbn();
+        if (error) return showToast(error, "danger");
+      
+        if (!selectedBook) return showToast("Select a record", "warning");
+      
      try {
         const {data} = await borrowService.BorrowReceiveUpdate(bookIsbn);
 
         if(data.success){
-            alert(data.message);
+           showToast(data.message,"success")
             handleSetDefault();
         }
      } catch (error) {
@@ -268,8 +315,8 @@ const BorrowUpdates = () => {
     }
 
     return (
-        <section className="bg-light text-dark ">
-            <div className="border border-dark rounded p-2 mb-3 ">
+        <section className="text-light border rounded ">
+            <div className=" p-2 mb-3 ">
 
                 {/* Borrow & Receive button */}
                 <div className=" d-flex justify-content-between mt-2">
@@ -413,60 +460,46 @@ const BorrowUpdates = () => {
     );
 };
 
-
-// const Notification = () => {
-//     const [message, setMessage] = useState("");
-
-//     const handleMessageInput = (e) => {
-//         setMessage(e.target.value);
-//     };
-//     const handleSendMessage = () => {
-//         // BE for api message send
-//     };
-//     return (
-//         <section className="bg-dark p-3 text-white rounded mb-3">
-//             <h3>Notification</h3>
-//             <div className=" card bg-dark text-light ">
-//                 <div className="p-0 card-body d-flex flex-column">
-//                     <label htmlFor="text-msg" className=" form-label">
-//                         Enter Message Here:
-//                     </label>
-//                     <textarea
-//                         rows="5"
-//                         value={message}
-//                         onChange={handleMessageInput}
-//                         className=" rounded"
-//                     ></textarea>
-//                 </div>
-//                 <div className=" d-flex justify-content-end mt-2">
-//                     <Button onClick={handleSendMessage}>Send</Button>
-//                 </div>
-//             </div>
-//         </section>
-//     );
-// };
-
 const AddAdmins  = () => {
+    const { showToast } = useToast();
     const [formInputs, setFormInputs] = useState({name:'',email:'',password:'',role:''});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
   
+    const validate = () => {
+        const name = formInputs.name.trim();
+        const email = formInputs.email.trim();
+        const password = formInputs.password;
+      
+        if (!name) return "Name is required";
+      
+        if (!/^[a-zA-Z\s]{3,50}$/.test(name)) {
+          return "Name must be 3–50 characters (letters only)";
+        }
+      
+        if (!email) return "Email is required";
+      
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) return "Invalid email format";
+      
+        if (!password) return "Password is required";
+      
+        if (password.length < 6) return "Password must be at least 6 characters";
+      
+        // optional stronger rule
+        if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+          return "Password must include 1 uppercase & 1 number";
+        }
+      
+        if (!formInputs.role) return "Role is required";
+      
+        return null;
+      };
     const handleInputForm =(e)=>{
         const {name,value}= e.target;
 
         setFormInputs(prev=>({...prev,[name]:value }));
     }
-
-    const validate = () => {
-        if (!formInputs.name.trim()) return "Name required";
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formInputs.email)) return "Invalid email";
-    
-        if (formInputs.password.length < 6) return "Password min 6 chars";
-    
-        if (!formInputs.role) return "Role required";
-         return null;
-      };
     
 
 
@@ -475,19 +508,24 @@ const AddAdmins  = () => {
 
         const validationError = validate();
         if (validationError) {
-          return setError(validationError);
+          return showToast(validationError, "danger");
         }
+      
         try {
             setLoading(true);
             setError("");
-
+            console.log(formInputs);
+            console.log({email: formInputs.email.toLowerCase(), 
+                name: formInputs.name.toLowerCase(),})
+            // return 
             const {data}=await API.post("/api/admin/register", {
                 ...formInputs,
-                email: formInputs.email.toLowerCase(), // ✅ transform here
+                email: formInputs.email.toLowerCase(), 
+                name: formInputs.name.trim(),
               });
             
               if(data.success){
-                alert(data.message);
+               showToast(data.message,"success")
                 handleFormReset();
               }
             
@@ -509,17 +547,20 @@ const AddAdmins  = () => {
         if (error) alert(error);
       }, [error]);
 
-    return ( <section className=" ">
-        <section className=" bg-dark border rounded text-light p-3">
+    return ( <section className="text-light">
+        <h3>Add Admin:</h3>
+        <section className=" border rounded  p-3">
            <form className="" onSubmit={handleFormSubmit}>
             <label className=" form-label" >Enter Name :</label>
-            <input  type="text" name="name" value={formInputs.name.toLowerCase()} className=" form-control" onChange={handleInputForm}/>
+            <input  type="text" name="name" value={formInputs.name} className=" form-control" onChange={handleInputForm}/>
             <label className=" form-label" >Enter Email :</label>
-            <input type="email" name="email" value={formInputs.email.toLowerCase()} className=" form-control" onChange={handleInputForm}/>
+            <input type="email" name="email" value={formInputs.email} className=" form-control" onChange={handleInputForm}/>
             <label className=" form-label" >Enter Password :</label>
             <input type="password" name="password" value={formInputs.password} className=" form-control"onChange={handleInputForm}/>
             <label className=" form-label"> Select Role :</label>
             <select name="role" className=" form-select" onChange={handleInputForm}>
+  
+            <option value="">Select Role</option>
   <option value="admin">Admin</option>
   <option value="super_admin">Super Admin</option>
 </select>

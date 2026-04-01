@@ -11,6 +11,47 @@
   background-color: #2e6196;
   color: white;
 }
+.bg-image {
+  position: relative;
+  min-height: 100vh;
+}
+
+.bg-image::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: url('/logos/FP.jpg') center/cover no-repeat;
+  z-index: -2;
+}
+
+.bg-image::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5); /* adjust opacity here */
+  z-index: -1;
+}
+.bg-a-image {
+  position: relative;
+  min-height: 100vh;
+  
+}
+
+.bg-a-image::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: url('/logos/AP.jpg') center/cover no-repeat;
+  z-index: -2;
+}
+
+.bg-a-image::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5); /* adjust opacity here */
+  z-index: -1;
+}
 
 
 .hero-carousel .carousel-item, .img-con {
@@ -33,10 +74,34 @@
   object-fit: cover;  
 }
 
+.report-card {
+  background: #686b39;
+  padding: 16px;
+  border-radius: 12px;
+  color: #fff;
+}
 
+.report-title {
+  margin-bottom: 12px;
+  font-size: 18px;
+}
+
+.report-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.report-item:last-child {
+  border-bottom: none;
+}
+
+.report-item span {
+  font-weight: bold;
+}
 
 
 body{
   background-color: #f4f6f8;
-  padding-top: 70px;
 }

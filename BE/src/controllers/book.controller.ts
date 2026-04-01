@@ -105,12 +105,11 @@ const getBooks= async(req:Request<{},{},{},BookQuery>,res:Response<GetBooksRespo
       countValues.push(category)
     }
 
-
+ 
     const result =await pool.query<BookType>(query,values);
-
+    
     const countResult = await pool.query(countQuery,countValues)
-
-
+    
     const total = parseInt(countResult.rows[0].count);
 
     const totalPages = Math.ceil(total/limit)
@@ -128,7 +127,7 @@ const getBookByIsbn = async (
 ) => {
     try {
 
-        // console.log("step - 3");
+        
         const { isbn } = req.params;
 
         const result = await pool.query<BookType>(

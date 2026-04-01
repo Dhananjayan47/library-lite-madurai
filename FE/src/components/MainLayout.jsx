@@ -7,11 +7,10 @@ const MainLayout = () => {
     return (
       <div className="d-flex flex-column min-vh-100 ">
         
-        <header>
+        
           <NavigationBar />
-        </header>
   
-        <main className="flex-grow-1 container-fluid px-3 d-flex flex-column">
+        <main className="flex-grow-1 container-fluid px-3 d-flex flex-column bg-image">
           <Outlet/>
         </main>
   

@@ -20,7 +20,8 @@ export const MonthlyBorrowChart = ({ data }) => {
         data: safeData.map(d => d.count),
         backgroundColor: "rgba(54, 162, 235, 0.5)", // fill color
         borderColor: "rgba(54, 162, 235, 1)",    
-        borderWidth: 1
+        borderWidth: 1,
+        color:"#fff"
       }
     ]
   };
@@ -28,23 +29,32 @@ export const MonthlyBorrowChart = ({ data }) => {
   const options = {
     responsive: true,
     plugins: {
-      legend: { display: true }
+      legend: { display: true,color:"#fff" },tooltip:{
+        titleColor:"#fff",bodyColor:"#fff"
+      }
     },
     scales: {
+
       x: {
+        ticks:{
+          color:"#fff"
+        },
         title: {
           display: true,
-          text: "Month"
+          text: "Month",
+          color:"#fff"
         }
       },
       y: {
         beginAtZero: true,
         ticks:{
-            stepSize:1
+            stepSize:1,
+            color:"#fff"
         },
         title: {
           display: true,
-          text: "Borrows"
+          text: "Borrows",
+          color:"#fff"
         }
       }
     }

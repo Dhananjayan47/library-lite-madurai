@@ -1,14 +1,16 @@
 import {BrowserRouter} from 'react-router-dom'
 import AppRoutes from './routes/appRoutes';
 import './config/chartConfig'
-import AuthProvider from './context/AuthProvider';
+import { ToastProvider } from './context/ToastProvider';
+
 const App = () => {
   return ( <BrowserRouter>
  
-<AuthProvider>
+<ToastProvider>
 
   <AppRoutes/>
-</AuthProvider>
+</ToastProvider>
+
 
   </BrowserRouter> );
 }

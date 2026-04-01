@@ -3,10 +3,10 @@ import { Carousel, Image } from "react-bootstrap";
 const AboutPage = () => {
     return (
         <>
-            <section>
+            <section className=" text-light">
                 <section>
                     <h3>About us</h3>
-                    <div className=" mb-2 flex-center flex-column ">
+                    <div className=" mb-2 flex-center flex-column border border-2 rounded p-3">
                       <Image rounded src="\photos\IMG-20260208-WA0022.jpg"/>
                       <h6>Central Library</h6>
                     </div>

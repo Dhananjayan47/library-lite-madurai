@@ -6,10 +6,10 @@ import {Spinner, Pagination ,Button} from "react-bootstrap"
 // import { borrowService } from "../services/borrowService";
 const NotifyBorrowers = () => {
     const {
-        reset,
+        
         getRecordsForNotify,
         loading,
-        error,
+        
         page,
         setPage,
         totalPages,
@@ -34,20 +34,20 @@ const NotifyBorrowers = () => {
     },[page])
 
     const getColor =(days)=>{
-        if (days < 0) return "bg-danger text-white"
+        if (days <= 0) return "bg-danger text-white"
         if (days === 1) return "bg-danger text-white"
         if (days === 2) return "bg-warning"
         if (days === 3) return "bg-success text-white"
        return "";
     }
     return (
-        <section className=" flex-fill w-100">
+        <section className=" flex-fill w-100 text-light">
             <section>
                 <div>
                     <h3>Notify Borrowers :</h3>
                 </div>
             </section>
-            <section className=" my-3 p-2 border rounded border-dark overflow-x-scroll pt-3">
+            <section className=" my-3 p-2 border rounded overflow-x-scroll pt-3">
                 <Table striped bordered hover responsive size="sm" >
                     <thead className=" table-dark">
                         <tr>
@@ -58,8 +58,6 @@ const NotifyBorrowers = () => {
                             <th>Borrowed at</th>
                             <th>Due Date</th>
                             <th>Days Left</th>
-                            <th>Borrowed Email</th>
-                            <th>Send Mail</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -88,9 +86,7 @@ const NotifyBorrowers = () => {
                                     <td>{new Date(r.borrowed_at).toLocaleDateString()}</td>
                            <td>{new Date(r.due_date).toLocaleDateString()}</td>
                            <td ><span className={` badge ${getColor(r.days_left)}`}>{r.days_left}</span></td>
-                           <td>{r.borrower_email || "no"}</td>
-                           <td>{r.borrower_email ?<Button> Send</Button>: "No Email"}</td>
-                           
+                          
                                 </tr>
                             ))}
                     </tbody>

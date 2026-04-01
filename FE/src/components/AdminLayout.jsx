@@ -10,7 +10,7 @@ const AdminLayout = () => {
           <NavigationBar />
         </header>
   
-        <main className="flex-grow-1 container-fluid px-3 d-flex flex-column mb-3">
+        <main className="flex-grow-1 container-fluid px-3 d-flex flex-column bg-a-image">
           <Outlet/>
         </main>
   

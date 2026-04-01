@@ -7,8 +7,11 @@ import {
     LinearScale,
     PointElement,
     Tooltip,
-    Legend
+    Legend,
+    Filler
   } from "chart.js";
+
+  ChartJS.defaults.color = "#fff";
   
   ChartJS.register(
     LineElement,
@@ -18,5 +21,5 @@ import {
     LinearScale,
     PointElement,
     Tooltip,
-    Legend
+    Legend,Filler
   );
