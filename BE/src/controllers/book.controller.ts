@@ -52,9 +52,10 @@ const getBooks= async(req:Request<{},{},{},BookQuery>,res:Response<GetBooksRespo
     const category = req.query.category || ""
     const field = req.query.field || "title"
 
-
+    console.log(1);
+    
     const offset =( page -1) * limit;
-
+    
     let query = `SELECT b.*, CASE 
           WHEN EXISTS (
             SELECT 1 
@@ -64,51 +65,59 @@ const getBooks= async(req:Request<{},{},{},BookQuery>,res:Response<GetBooksRespo
           )  THEN 'borrowed'
           ELSE 'available'
         END AS status
-      FROM books b
-      WHERE 1=1 `
-    const values :any[] =[];
-    let index=1;
-
-    const allowedFields = ["title","author","isbn","id"]
-    if(search && allowedFields.includes(field)){
-      query += ` AND ${field}::text ILIKE $${index}`
+        FROM books b
+        WHERE 1=1 `
+        const values :any[] =[];
+        let index=1;
+        
+        console.log(2);
+        const allowedFields = ["title","author","isbn","id"]
+        if(search && allowedFields.includes(field)){
+            query += ` AND ${field}::text ILIKE $${index}`
       values.push(`%${search}%`)
       index++
     }
-
+    
     if(category){
-      query += ` AND category = $${index}`
-      values.push(category);
-      index++
+        query += ` AND category = $${index}`
+        values.push(category);
+        index++
     }
-
+    
+    console.log(3);
     query += ` 
     ORDER BY id 
     LIMIT $${index}
     OFFSET $${index+1}
-            `
-
+    `
+    
     values.push(limit,offset)
-
+    console.log(4);
+    
     let countQuery=`SELECT COUNT(*) FROM books WHERE 1=1`
     const countValues:any[]=[]
     let countIndex=1
-
+    
+    console.log(5);
     if (search) {
-      countQuery += ` AND (title ILIKE $${countIndex} OR author ILIKE $${countIndex})`
-      countValues.push(`%${search}%`)
-      countIndex++
+        countQuery += ` AND (title ILIKE $${countIndex} OR author ILIKE $${countIndex})`
+        countValues.push(`%${search}%`)
+        countIndex++
     }
     
+    console.log(6);
     if (category) {
-      countQuery += ` AND category = $${countIndex} `
-      countValues.push(category)
+        countQuery += ` AND category = $${countIndex} `
+        countValues.push(category)
     }
-
- 
+    
+    
+    console.log(7);
     const result =await pool.query<BookType>(query,values);
     
+    console.log(8);
     const countResult = await pool.query(countQuery,countValues)
+    console.log(9);
     
     const total = parseInt(countResult.rows[0].count);
 
