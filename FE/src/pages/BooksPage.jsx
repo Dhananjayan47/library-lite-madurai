@@ -35,9 +35,10 @@ const BooksPage = () => {
                 const {data} =await API.get(`api/books?page=${page}&limit=${limit}`);
                 console.log(data.books);
                 setBooks(data.books);
-                setTotalPages(data.totalPages)
+                setTotalPages(data.totalPages);
             } catch (error) {
-                console.error(error)
+                console.error(error);
+                
             }finally{
                 setLoading(false)
             }
