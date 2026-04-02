@@ -118,6 +118,9 @@ const getBooks= async(req:Request<{},{},{},BookQuery>,res:Response<GetBooksRespo
     console.log(8);
     const countResult = await pool.query(countQuery,countValues)
     console.log(9);
+    console.log("data",result.rows);
+    console.log("count",countResult.rows[0]);
+    
     
     const total = parseInt(countResult.rows[0].count);
 
